@@ -54,8 +54,8 @@ git version 2.53.0
 - [x] 바인드 마운트 반영
 - [x] 볼륨 영속성
 - [x] Git 사용자 정보 및 기본 브랜치 설정
-- [ ] 브라우저 접속 화면 캡처 (주소창 포함) → [8-4](#8-4-브라우저-접속-증거)
-- [ ] VS Code에서 GitHub 로그인 및 저장소 연동 → [10-2](#10-2-github-연동)
+- [x] 브라우저 접속 화면 캡처 (주소창 포함) → [8-4](#8-4-브라우저-접속-증거)
+- [x] VS Code에서 GitHub 로그인 및 저장소 연동 → [10-2](#10-2-github-연동)
 
 ## 4. 저장소 구조
 
@@ -376,7 +376,15 @@ $ curl -s http://localhost:8081
 
 ### 8-4. 브라우저 접속 증거
 
-> TODO: 브라우저에서 `http://localhost:8080`, `http://localhost:8081`을 열고 주소창이 보이게 캡처해 `docs/images/13_browser_8080.png`, `14_browser_8081.png`로 추가
+같은 이미지로 띄운 두 컨테이너에 브라우저로 접속했습니다. 주소창의 포트(8080, 8081)만 다르고 같은 페이지가 나옵니다.
+
+`http://localhost:8080`
+
+![localhost:8080 접속](docs/images/13_browser_8080.webp)
+
+`http://localhost:8081`
+
+![localhost:8081 접속](docs/images/14_browser_8081.webp)
 
 ---
 
@@ -444,7 +452,30 @@ core.autocrlf=input
 
 ### 10-2. GitHub 연동
 
-> TODO: VS Code에서 GitHub 로그인 → 저장소 생성/연결 → push 후 화면 캡처 추가 (토큰, 인증 코드가 보이지 않게)
+VS Code에서 폴더를 신뢰 모드로 연 뒤, 소스 제어의 **게시 Branch**로 GitHub에 로그인하고 공개 저장소로 게시했습니다. 로그인 인증 코드와 토큰은 기록하지 않았습니다.
+
+1. VS Code가 로그인된 GitHub 계정(`Hoyasiro`)으로 저장소 이름을 제안하고, public을 선택했습니다.
+
+![VS Code 게시 선택](docs/images/15_vscode_publish_choice.png)
+
+2. 게시 후 `main` 브랜치에 원격 연결 표시(구름 아이콘)가 생겼습니다.
+
+![VS Code 게시 완료](docs/images/16_vscode_published.png)
+
+3. 원격 저장소 연결을 터미널에서도 확인했습니다.
+
+```
+$ git remote -v
+origin  https://github.com/Hoyasiro/e1-1-workstation.git (fetch)
+origin  https://github.com/Hoyasiro/e1-1-workstation.git (push)
+
+$ git status -sb
+## main...origin/main
+```
+
+4. GitHub에서 공개(Public) 저장소와 README가 보입니다: https://github.com/Hoyasiro/e1-1-workstation
+
+![GitHub 저장소](docs/images/17_github_repo.webp)
 
 ---
 
