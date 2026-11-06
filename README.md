@@ -372,6 +372,29 @@ $ curl -s http://localhost:8081
 
 이미지 하나로 컨테이너 두 개를 만들었습니다. 두 컨테이너 모두 안에서는 80번을 쓰지만, 호스트 포트(8080, 8081)가 달라서 충돌하지 않습니다. 상세 로그: [docs/logs/port_mapping.md](docs/logs/port_mapping.md)
 
+**왜 포트가 격리되는가: 네트워크 네임스페이스**
+
+컨테이너는 **네트워크 네임스페이스**(network namespace)라는 리눅스 기능으로 호스트와 분리된 자기만의 네트워크 공간(IP, 포트 목록)을 가집니다. 그래서 컨테이너 안의 80번은 호스트의 80번과 다른 포트이고, `-p 8080:80`이 두 공간 사이를 연결해 줍니다.
+
+```
+$ readlink /proc/self/ns/net                      # 호스트
+net:[4026531833]
+$ docker exec my-web-8080 readlink /proc/self/ns/net   # 컨테이너
+net:[4026532400]
+
+$ docker exec my-web-8080 ip -4 addr show eth0 | grep inet
+    inet 172.17.0.2/16 brd 172.17.255.255 scope global eth0
+
+$ curl -s -m 3 http://localhost:80 || echo "curl exit $?"
+curl exit 7
+$ curl -s -m 3 http://localhost:8080
+<h1>Hello from my custom nginx!</h1>
+```
+
+- 네임스페이스 번호가 달라서 호스트와 컨테이너가 서로 다른 네트워크 공간임을 확인했습니다.
+- 컨테이너는 자기 IP(`172.17.0.2`)를 따로 가집니다.
+- 호스트의 80번에는 아무것도 없어서 연결이 거부되고(`curl exit 7`), 매핑한 8080번으로만 컨테이너의 nginx에 닿습니다.
+
 ![빌드와 포트 충돌](docs/images/12_build_port_conflict.png)
 
 ### 8-4. 브라우저 접속 증거
@@ -477,6 +500,17 @@ $ git status -sb
 
 ![GitHub 저장소](docs/images/17_github_repo.webp)
 
+5. 원격(origin/main)에 커밋이 올라갔는지 확인했습니다. 원격 커밋 로그: https://github.com/Hoyasiro/e1-1-workstation/commits/main
+
+```
+$ git fetch origin
+$ git log --format='%h %ad %s' --date=iso origin/main
+3f67719 2026-11-05 21:55:32 +0900 브라우저 접속과 GitHub 연동 증거 추가
+5e99d33 2026-11-05 21:00:25 +0900 E1-1 개발 워크스테이션 구축 기록
+```
+
+`origin/main`은 GitHub에 있는 main 브랜치입니다. 내 PC의 커밋이 이 목록에 보이므로 push가 반영된 것입니다.
+
 ---
 
 ## 11. 트러블슈팅
@@ -553,7 +587,7 @@ r=4, w=2, x=1을 더한 숫자를 소유자, 그룹, 그 외 순서로 씁니다
 기존 이미지(`FROM nginx:alpine`) 위에 필요한 것(`COPY`, `ENV`, `LABEL`)을 더해 새 이미지를 만듭니다. 항상 필요한 내용은 이미지에 넣어두면 누가 실행해도 같은 결과가 나옵니다.
 
 **포트 매핑이 필요한 이유**
-컨테이너는 격리되어 있어서, 호스트에서 컨테이너 안의 포트에 바로 접속할 수 없습니다. `-p 호스트포트:컨테이너포트`로 연결해야 합니다. 호스트 포트는 하나의 컨테이너만 쓸 수 있습니다.
+컨테이너는 **네트워크 네임스페이스**로 호스트와 분리된 자기만의 네트워크 공간(IP, 포트)을 가집니다. 그래서 호스트에서 컨테이너 안의 포트에 바로 접속할 수 없고, `-p 호스트포트:컨테이너포트`로 두 공간을 연결해야 합니다(확인 출력: 8-3). 호스트 포트는 하나의 컨테이너만 쓸 수 있습니다.
 
 **Docker 볼륨**
 컨테이너 안의 변경은 컨테이너를 지우면 사라집니다. 볼륨은 Docker가 관리하는 별도 저장소라, 컨테이너를 지워도 데이터가 남고 새 컨테이너에 다시 연결할 수 있습니다.
