@@ -503,13 +503,18 @@ $ git status -sb
 5. 원격(origin/main)에 커밋이 올라갔는지 확인했습니다. 원격 커밋 로그: https://github.com/Hoyasiro/e1-1-workstation/commits/main
 
 ```
-$ git fetch origin
+$ git push origin main
+To https://github.com/Hoyasiro/e1-1-workstation.git
+   3f67719..de1553c  main -> main
+
 $ git log --format='%h %ad %s' --date=iso origin/main
+de1553c 2026-11-06 22:49:43 +0900 포트 격리 원리(네트워크 네임스페이스)와 push 기록 추가
 3f67719 2026-11-05 21:55:32 +0900 브라우저 접속과 GitHub 연동 증거 추가
 5e99d33 2026-11-05 21:00:25 +0900 E1-1 개발 워크스테이션 구축 기록
 ```
 
-`origin/main`은 GitHub에 있는 main 브랜치입니다. 내 PC의 커밋이 이 목록에 보이므로 push가 반영된 것입니다.
+- `3f67719..de1553c main -> main`은 원격 main이 `3f67719`에서 `de1553c`로 올라갔다는 push 결과입니다.
+- `origin/main`은 GitHub에 있는 main 브랜치입니다. 내 PC의 커밋이 시각과 함께 이 목록에 보이므로 push가 반영된 것입니다.
 
 ---
 
